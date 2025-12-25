@@ -2,9 +2,18 @@
 
 A custom shader pack for Minecraft Java Edition that adds tessellation effects to give blocks a distinctive geometric appearance.
 
+<div style="display: flex; justify-content: space-between;">
+    <img src="screenshot1.png" alt="sample screenshot" style="width: 48%;"/>
+    <img src="screenshot2.png" alt="sample screenshot with mobs" style="width: 48%;"/>
+</div>
+
 ## Overview
 
 This shader pack makes Minecraft's voxel-style surfaces tessellated into visible triangles. Cubes and rectangles will look rounder and more geometric, creating a unique "tech demo" aesthetic reminiscent of DirectX tessellation demonstrations from the early 2010s.
+
+Overall result: this may not look great but I'm happy it has gotten to the point of loading without crashing. Note its
+performance is also poor, likely tied to the use of of geometry shaders instead of tessellation control / tessellation evaluation
+shaders.
 
 ## Behavior
 
