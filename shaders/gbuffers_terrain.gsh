@@ -4,7 +4,7 @@
 // Subdivides triangles to create tessellated, rounded surfaces
 
 layout(triangles) in;
-layout(triangle_strip, max_vertices = 256) out;
+layout(triangle_strip, max_vertices = 64) out;
 
 // Input from vertex shader
 in vec2 texcoord[];
@@ -47,7 +47,8 @@ void emitVertex(vec4 pos, vec3 norm, vec3 bary) {
 
 void main() {
     // Determine tessellation depth based on settings
-    int tessDepth = TESSELLATION_LEVEL - 1;
+    // Clamp to 2 (16 triangles = 48 vertices) to fit within max_vertices=64
+    int tessDepth = min(TESSELLATION_LEVEL - 1, 2);
 
     // Check if triangle is too small to tessellate (far away or edge-on)
     vec3 screenPos0 = gl_in[0].gl_Position.xyz / gl_in[0].gl_Position.w;

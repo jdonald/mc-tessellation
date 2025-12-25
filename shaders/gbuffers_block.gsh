@@ -3,7 +3,7 @@
 // Geometry Shader for Textured Geometry - Lighter tessellation for non-terrain
 
 layout(triangles) in;
-layout(triangle_strip, max_vertices = 256) out;
+layout(triangle_strip, max_vertices = 64) out;
 
 in vec2 texcoord[];
 in vec2 lmcoord[];
