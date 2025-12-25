@@ -42,7 +42,11 @@ void emitVertex(vec4 pos, vec3 norm, vec3 bary) {
 
 void main() {
     // Use lower tessellation level for entities to avoid severe distortion
-    int tessDepth = max(TESSELLATION_LEVEL - 2, 0);
+    // min(LEVEL - 1, 2) ensures:
+    // Level 1 -> Depth 0 (Off)
+    // Level 2 -> Depth 1 (Low)
+    // Level 3+ -> Depth 2 (Max for 64 vertices)
+    int tessDepth = min(TESSELLATION_LEVEL - 1, 2);
 
     if (tessDepth < 1) {
         emitVertex(gl_in[0].gl_Position, normal[0], vec3(1,0,0));
