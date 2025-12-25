@@ -1,0 +1,18 @@
+# English (US) language file for MC Tessellation shader
+
+screen.TESSELLATION=Tessellation Settings
+
+option.TESSELLATION_LEVEL=Tessellation Level
+option.TESSELLATION_LEVEL.comment=Controls subdivision level. Lower = visible triangles (tech demo look), Higher = smoother
+value.TESSELLATION_LEVEL.1=Low (Tech Demo)
+value.TESSELLATION_LEVEL.2=Medium
+value.TESSELLATION_LEVEL.3=High
+value.TESSELLATION_LEVEL.4=Very High
+
+option.TESSELLATION_SMOOTHNESS=Surface Smoothness
+option.TESSELLATION_SMOOTHNESS.comment=How much to smooth the tessellated surfaces
+value.TESSELLATION_SMOOTHNESS.0.0=Flat (Blocky)
+value.TESSELLATION_SMOOTHNESS.0.25=Slight
+value.TESSELLATION_SMOOTHNESS.0.5=Medium
+value.TESSELLATION_SMOOTHNESS.0.75=High
+value.TESSELLATION_SMOOTHNESS.1.0=Very Smooth

@@ -1,0 +1,6 @@
+{
+    "pack": {
+        "pack_format": 8,
+        "description": "MC Tessellation Shader - Geometric tessellation effect for Minecraft blocks"
+    }
+}
