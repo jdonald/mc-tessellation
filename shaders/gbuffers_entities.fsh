@@ -3,6 +3,7 @@
 // Fragment Shader for Entities - No tessellation, just basic rendering
 
 in vec2 texcoord;
+in vec2 lmcoord;
 in vec4 glcolor;
 in vec3 normal;
 
@@ -21,7 +22,6 @@ void main() {
 
     color.rgb *= lighting;
 
-    vec2 lmcoord = vec2(0.5, 0.9);
     vec4 lightmapColor = texture2D(lightmap, lmcoord);
     color.rgb *= lightmapColor.rgb;
 

@@ -8,16 +8,15 @@ layout(triangle_strip, max_vertices = 64) out;
 
 // Input from vertex shader
 in vec2 texcoord[];
+in vec2 lmcoord[];
 in vec4 glcolor[];
 in vec3 normal[];
-in vec3 worldPos[];
-in float blockId[];
 
 // Output to fragment shader
 out vec2 texcoordOut;
+out vec2 lmcoordOut;
 out vec4 glcolorOut;
 out vec3 normalOut;
-out float ao;
 
 // Configurable tessellation settings
 #ifndef TESSELLATION_LEVEL
@@ -58,43 +57,44 @@ vec3 calculateDisplacement(vec3 pos, vec3 norm, float edgeFactor) {
 }
 
 // Emit a single vertex with all attributes
-void emitVertex(vec4 pos, vec2 tc, vec4 col, vec3 norm, float ambientOcclusion) {
+void emitVertex(vec4 pos, vec2 tc, vec2 lm, vec4 col, vec3 norm) {
     gl_Position = pos;
     texcoordOut = tc;
+    lmcoordOut = lm;
     glcolorOut = col;
     normalOut = norm;
-    ao = ambientOcclusion;
     EmitVertex();
 }
 
 // Subdivide a triangle recursively
 void subdivideTri(vec4 v0, vec4 v1, vec4 v2,
                   vec2 t0, vec2 t1, vec2 t2,
+                  vec2 l0, vec2 l1, vec2 l2,
                   vec4 c0, vec4 c1, vec4 c2,
                   vec3 n0, vec3 n1, vec3 n2,
                   int depth) {
 
     if (depth <= 0) {
         // Base case: emit the triangle
-        emitVertex(v0, t0, c0, n0, 1.0);
-        emitVertex(v1, t1, c1, n1, 1.0);
-        emitVertex(v2, t2, c2, n2, 1.0);
+        emitVertex(v0, t0, l0, c0, n0);
+        emitVertex(v1, t1, l1, c1, n1);
+        emitVertex(v2, t2, l2, c2, n2);
         EndPrimitive();
         return;
     }
 
     // Calculate midpoints
-    vec4 v01 = interpolateVertex(0, 1, 0.5) * 0.5 + v0 * 0.25 + v1 * 0.25;
-    vec4 v12 = interpolateVertex(1, 2, 0.5) * 0.5 + v1 * 0.25 + v2 * 0.25;
-    vec4 v20 = interpolateVertex(2, 0, 0.5) * 0.5 + v2 * 0.25 + v0 * 0.25;
-
-    v01 = (v0 + v1) * 0.5;
-    v12 = (v1 + v2) * 0.5;
-    v20 = (v2 + v0) * 0.5;
+    vec4 v01 = (v0 + v1) * 0.5;
+    vec4 v12 = (v1 + v2) * 0.5;
+    vec4 v20 = (v2 + v0) * 0.5;
 
     vec2 t01 = (t0 + t1) * 0.5;
     vec2 t12 = (t1 + t2) * 0.5;
     vec2 t20 = (t2 + t0) * 0.5;
+
+    vec2 l01 = (l0 + l1) * 0.5;
+    vec2 l12 = (l1 + l2) * 0.5;
+    vec2 l20 = (l2 + l0) * 0.5;
 
     vec4 c01 = (c0 + c1) * 0.5;
     vec4 c12 = (c1 + c2) * 0.5;
@@ -111,10 +111,10 @@ void subdivideTri(vec4 v0, vec4 v1, vec4 v2,
     v20.xyz += n20 * displacementAmount;
 
     // Recursively subdivide into 4 triangles
-    subdivideTri(v0, v01, v20, t0, t01, t20, c0, c01, c20, n0, n01, n20, depth - 1);
-    subdivideTri(v1, v12, v01, t1, t12, t01, c1, c12, c01, n1, n12, n01, depth - 1);
-    subdivideTri(v2, v20, v12, t2, t20, t12, c2, c20, c12, n2, n20, n12, depth - 1);
-    subdivideTri(v01, v12, v20, t01, t12, t20, c01, c12, c20, n01, n12, n20, depth - 1);
+    subdivideTri(v0, v01, v20, t0, t01, t20, l0, l01, l20, c0, c01, c20, n0, n01, n20, depth - 1);
+    subdivideTri(v1, v12, v01, t1, t12, t01, l1, l12, l01, c1, c12, c01, n1, n12, n01, depth - 1);
+    subdivideTri(v2, v20, v12, t2, t20, t12, l2, l20, l12, c2, c20, c12, n2, n20, n12, depth - 1);
+    subdivideTri(v01, v12, v20, t01, t12, t20, l01, l12, l20, c01, c12, c20, n01, n12, n20, depth - 1);
 }
 
 void main() {
@@ -131,15 +131,16 @@ void main() {
     // Skip tessellation for very small triangles (LOD)
     if (area < 0.001 || tessDepth < 1) {
         // Just pass through original triangle
-        emitVertex(gl_in[0].gl_Position, texcoord[0], glcolor[0], normal[0], 1.0);
-        emitVertex(gl_in[1].gl_Position, texcoord[1], glcolor[1], normal[1], 1.0);
-        emitVertex(gl_in[2].gl_Position, texcoord[2], glcolor[2], normal[2], 1.0);
+        emitVertex(gl_in[0].gl_Position, texcoord[0], lmcoord[0], glcolor[0], normal[0]);
+        emitVertex(gl_in[1].gl_Position, texcoord[1], lmcoord[1], glcolor[1], normal[1]);
+        emitVertex(gl_in[2].gl_Position, texcoord[2], lmcoord[2], glcolor[2], normal[2]);
         EndPrimitive();
     } else {
         // Tessellate the triangle
         subdivideTri(
             gl_in[0].gl_Position, gl_in[1].gl_Position, gl_in[2].gl_Position,
             texcoord[0], texcoord[1], texcoord[2],
+            lmcoord[0], lmcoord[1], lmcoord[2],
             glcolor[0], glcolor[1], glcolor[2],
             normal[0], normal[1], normal[2],
             tessDepth

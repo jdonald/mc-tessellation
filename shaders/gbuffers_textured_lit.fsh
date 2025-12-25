@@ -3,9 +3,9 @@
 // Fragment Shader for Textured Geometry
 
 in vec2 texcoordOut;
+in vec2 lmcoordOut;
 in vec4 glcolorOut;
 in vec3 normalOut;
-in float ao;
 
 uniform sampler2D texture;
 uniform sampler2D lightmap;
@@ -20,10 +20,9 @@ void main() {
     float ambient = 0.4;
     float lighting = ambient + diffuse * 0.6;
 
-    color.rgb *= lighting * ao;
+    color.rgb *= lighting;
 
-    vec2 lmcoord = vec2(0.5, 0.9);
-    vec4 lightmapColor = texture2D(lightmap, lmcoord);
+    vec4 lightmapColor = texture2D(lightmap, lmcoordOut);
     color.rgb *= lightmapColor.rgb;
 
     fragColor = color;
